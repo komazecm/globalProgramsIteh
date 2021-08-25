@@ -1,0 +1,193 @@
+
+<!DOCTYPE html>
+
+<html class="no-js">
+	<head>
+		<meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<link rel="shortcut icon" href="favicon.ico">
+	<link href='https://fonts.googleapis.com/css?family=Open+Sans:300,400,700,300' rel='stylesheet' type='text/css'>
+	
+
+	<link rel="stylesheet" href="css/animate.css">  
+	<link rel="stylesheet" href="css/icomoon.css"> 
+	<link rel="stylesheet" href="css/bootstrap.css">  
+	<link rel="stylesheet" href="css/superfish.css"> 
+	<link rel="stylesheet" href="css/style.css">
+	<title>Global Programs</title>
+
+	</head>
+
+	<body>
+		
+		<div id="fh5co-wrapper"> 
+		<div id="fh5co-page"> 
+
+		<header id="fh5co-header-section" class="sticky-banner"> 
+			<div class="container">
+				<div class="nav-header">
+					<h1 id="fh5co-logo"><a href="index.html">Global<span>Programs</span></a></h1>
+					<nav id="fh5co-menu-wrap" role="navigation">
+						<ul class="sf-menu" id="fh5co-primary-menu">
+							<a href="index.html">Ponovo učitaj stranicu</a>
+						</ul>
+					</nav>
+				</div>
+			</div>
+		</header>
+
+		<div id="fh5co-popular-properties" class="fh5co-section-gray">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-8 col-md-offset-2 text-center heading-section animate-box">
+						<h3>Pregled svih programa</h3>
+						<p id="poruka"></p>
+					</div>
+				</div> 
+				<div class="row">
+					<div class="col-md-6" id="pregled">
+						<h3>Pretraga programa:</h3>
+						<label for="tip">Izaberite tip programa</label>
+						<select id="tip" class="form-control" onchange="pretrazi()">
+							<option value="Global Volunteer">Global Volunteer</option>
+							<option value="Global Teacher">Global Teacher</option>
+							<option value="Global Talent">Global Talent</option>
+						</select>
+						<div id="tabela">
+						</div>
+					</div>
+					<div class="col-md-6" id="unosIzmena">
+						<h3>Unos i izmena programa:</h3>
+						<input type="hidden" id="idProgram">
+						<label for="naziv">Naziv programa</label>
+						<input type="text" class="form-control" id="naziv">
+						<label for="tipPrograma">Tip programa</label>
+						<select id="tipPrograma" class="form-control">
+							<option value="Global Volunteer">Global Volunteer</option>
+							<option value="Global Teacher">Global Teacher</option>
+							<option value="Global Talent">Global Talent</option>
+						</select>
+						<label for="zemlja">Zemlja</label>
+						<select id="zemlja" class="form-control">
+
+						</select>
+						<hr>
+						<button class="btn btn-primary" onclick="sacuvaj()" id="sacuvajDugme">Sačuvaj</button>
+						<button class="btn btn-info" onclick="izmeni()" id="izmeniDugme">Izmeni</button>
+
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<footer>
+			<div id="footer"> 
+				<p class="fh5co-social-icons">
+					<a href="https://aiesec.org/"><i class="icon-email"></i></a>
+					<a href="https://www.instagram.com/aiesecglobal/"><i class="icon-instagram"></i></a>
+					<a href="https://www.facebook.com/AIESECglobal/"><i class="icon-facebook"></i></a>
+					<a href="https://twitter.com/aiesec"><i class="icon-twitter"></i></a>
+				</p>
+			</div>
+		</footer>
+
+		</div>
+		</div>
+
+	<script src="js/jquery.min.js"></script>
+
+	<script>
+
+		function srediFormu() {
+			$("#naziv").val("");
+			$("#izmeniDugme").hide();
+			$("#sacuvajDugme").show();
+			$("#tipPrograma option[value='Global Volunteer']").prop('selected', true);
+			$("#zemlja option[value='1']").prop('selected', true);
+		}
+		srediFormu();
+		
+		function popuniZemlje() {
+			$.ajax({
+				url: 'comboBoxZemlje.php',
+				success: function (podaci) {
+					$("#zemlja").html(podaci);
+				}
+			})
+		}
+		popuniZemlje();
+
+		function pretrazi() {
+			let tip = $("#tip").val();
+			$.ajax({
+				url: 'pretraga.php?tip='+tip,
+				success: function (podaci) {
+					$("#tabela").html(podaci);
+				}
+			})
+		}
+		pretrazi();
+		
+		function ucitaj(programId,naziv,tipPrograma,zemljaId) {
+			$("#izmeniDugme").show();
+			$("#sacuvajDugme").hide();
+			$("#idProgram").val(programId);
+			$("#naziv").val(naziv);
+			$("#tipPrograma option[value='" + tipPrograma + "']").prop('selected', true);
+			$("#zemlja option[value='" + zemljaId + "']").prop('selected', true);
+		}
+
+		function obrisi(id) {
+			$.ajax({
+				url: 'brisanje.php?id='+id,
+				success: function (podaci) {
+					$("#poruka").html(podaci);
+					pretrazi();
+					srediFormu();
+				}
+			})
+		}
+
+		function sacuvaj() {
+			let podaci = {
+				naziv : $("#naziv").val(),
+				tipPrograma :  $("#tipPrograma").val(),
+				zemlja :  $("#zemlja").val(),
+			};
+
+			$.ajax({
+				url: 'sacuvaj.php',
+				type: 'POST',
+				data: podaci,
+				success: function (data) {
+					$("#poruka").html(data);
+					pretrazi();
+					srediFormu();
+				}
+			})
+		}
+
+		function izmeni() {
+			let podaci = {
+				naziv : $("#naziv").val(),
+				tipPrograma :  $("#tipPrograma").val(),
+				zemlja :  $("#zemlja").val(),
+				programID : $("#idProgram").val()
+			};
+
+			$.ajax({
+				url: 'izmeni.php',
+				type: 'POST',
+				data: podaci,
+				success: function (data) {
+					$("#poruka").html(data);
+					pretrazi();
+					srediFormu();
+				}
+			})
+		}
+	</script>
+
+	</body>
+</html>
